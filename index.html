@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Indian Bank – Allowances <title>Indian Bank – IBOF AIBOA</title>amp; Benefits (IBOF AIBOA)</title>
+<title>Indian Bank – Allowances &amp; Benefits (IBOF AIBOA)</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
@@ -1425,6 +1425,8 @@ const D = {
     VII:{OTHERS:[85500,57500,48000,44500,40000,null]},
     Clerk:null,SubStaff:null
   },
+  // Scale VIII (no separate button in this tool; shown as a note under Scale VII) – same circular
+  leaseVIII:[87500,60000,50000,50000,null,null],
   leaseLoc:['New Delhi (incl. Gurgaon / Ghaziabad / Noida), Mumbai',
     'Chennai / Bengaluru / Kolkata / Hyderabad / Secunderabad',
     'Pune / Ahmedabad / Surat & Cities >45L Population',
@@ -1476,11 +1478,39 @@ const D = {
     IV:null,III:null,II:null,I:null,Clerk:null,SubStaff:null
   },
 
-  // 14. FURNITURE AT RESIDENCE (wef 21.09.2022, exclusive of taxes)
+  // 14. FURNITURE AT RESIDENCE (revised wef 17.08.2026, exclusive of GST)
+  // Circular HRMD:40/2026-27 (CIR 24334) dt 17.08.2026. Scale VIII = 7,00,000 (no Scale VIII option in this tool)
   furniture:{
-    I:115000,II:130000,III:140000,IV:175000,V:220000,VI:270000,VII:350000,
+    I:200000,II:225000,III:250000,IV:300000,V:350000,VI:450000,VII:600000,
     Clerk:null,SubStaff:null
   },
+
+  // 15. STAFF VEHICLE LOAN – limits in ₹ Lakh as [EV/Hybrid, Conventional]
+  // Circular HRMD:39/2026-27 (CIR 24333) dt 17.08.2026. Scale VII limit is shared with Scale VIII.
+  vehicleLoan:{
+    I:  {w4:[20,18],w2:[2.5,2.0]},
+    II: {w4:[20,18],w2:[2.5,2.0]},
+    III:{w4:[20,18],w2:[2.5,2.0]},
+    IV: {w4:[23,20],w2:[2.5,2.0]},
+    V:  {w4:[23,20],w2:[2.5,2.0]},
+    VI: {w4:[23,20],w2:[2.5,2.0]},
+    VII:{w4:[25,22],w2:[2.5,2.0]},
+    Clerk:   {w4:[15,12],w2:[2.0,1.75]},
+    SubStaff:{w4:[10,8], w2:[1.5,1.25]}
+  },
+
+  // 16. BUSINESS DEVELOPMENT – ADDITIONAL REIMBURSEMENT (Circular 22284 dt 29.01.2024)
+  // Paid quarterly by IND PRIDE category. Entertainment: [ZM/BM, Others] ₹/month. Conveyance: litres/month (officers up to Scale IV).
+  bdEnt:{
+    I:  {AA:[300,300],A:[200,200],BBB:[100,100]},
+    II: {AA:[400,300],A:[300,200],BBB:[200,100]},
+    III:{AA:[500,300],A:[300,200],BBB:[200,100]},
+    IV: {AA:[600,400],A:[400,300],BBB:[200,100]},
+    V:  {AA:[800,700],A:[500,500],BBB:[300,200]},
+    VI: {AA:[900,900],A:[600,600],BBB:[300,300]},
+    VII:{AA:[1100,1100],A:[700,700],BBB:[400,400]}
+  },
+  bdConv:{AA:{w4:20,w2:15},A:{w4:15,w2:10},BBB:{w4:10,w2:5}},
 
   // 13. RETIREMENT MEMENTO (on superannuation)
   momento:{
@@ -1728,6 +1758,22 @@ function buildResults(){
   }
   H+=`</div>`;
 
+  // Business Development – additional reimbursement (officers only)
+  if(isOfficer&&D.bdEnt[sc]){
+    const be=D.bdEnt[sc], showConv=['I','II','III','IV'].includes(sc);
+    const ri=isBM?0:1;
+    H+=`<div class="bc fi d2" style="margin-top:10px;">
+      <div class="bicon">📈</div>
+      <div class="blbl">Business Development — Additional Reimbursement (over &amp; above monthly ceilings)</div>
+      <table class="tbl"><tr><th>IND PRIDE Category</th><th class="r">Entertainment / month</th>${showConv?'<th class="r">Local Conveyance (4W / 2W)</th>':''}</tr>`;
+    ['AA','A','BBB'].forEach(cat=>{
+      H+=`<tr><td>${cat} Category</td><td class="amt">${inr(be[cat][ri])}</td>${showConv?`<td class="amt">${D.bdConv[cat].w4} / ${D.bdConv[cat].w2} L</td>`:''}</tr>`;
+    });
+    H+=`</table>
+      <div class="bnote" style="margin-top:8px">Payable quarterly on a separate claim in HR Connect, based on quarterly IND PRIDE categorisation · Claim for a quarter lapses after the next 2 quarters · Additional tax liability, if any, is borne by the officer${showConv?' · Conveyance is in litres per month, for officers up to Scale IV':' · Additional conveyance applies to officers up to Scale IV only'} · Circular 22284 dt 29.01.2024</div>
+    </div>`;
+  }
+
   // Mobile Handset (officers)
   if(isOfficer){
     const mh=D.mobileHandset[sc];
@@ -1783,6 +1829,29 @@ function buildResults(){
     </div>
   </div>`;
 
+  // Group Medical Insurance 2026-27 (IBA / NICL)
+  H+=`<div class="bc fi d3" style="margin-top:10px;">
+    <div class="bicon">🏥</div>
+    <div class="blbl">Group Medical Insurance Policy 2026-27 (IBA / NICL)</div>
+    <div class="bnote" style="margin-top:2px">Policy period 01.11.2026 to 31.10.2027 · Includes all terms of the 2025-26 policy plus the additional coverage agreed on 17.07.2026</div>
+    <table class="tbl"><tr><th>Sum Insured</th><th class="r">4 Lakhs</th><th class="r">5.25 Lakhs</th><th class="r">7 Lakhs</th></tr>
+      <tr><td>Premium per employee unit</td><td class="amt">₹36,200</td><td class="amt">₹46,467</td><td class="amt">₹68,454</td></tr></table>
+    <table class="tbl"><tr><th>Top-Up (Serving Employee)</th><th class="r">1 Lakh</th><th class="r">2 Lakhs</th><th class="r">3 Lakhs</th><th class="r">4 Lakhs</th></tr>
+      <tr><td>Premium</td><td class="amt">₹7,701</td><td class="amt">₹12,101</td><td class="amt">₹14,301</td><td class="amt">₹17,011</td></tr></table>
+    <div class="bnote" style="margin-top:6px">Premiums are inclusive of all coverages &amp; enhancements. Retiree premium rates: see IBA letter HR&amp;IR/MBR/MEDINS/2026-27/3564 dt 19.09.2026.</div>
+    <div class="leave-type" style="margin-top:12px">What's new over 2025-26</div>
+    <ul class="leave-pts">
+      <li>Room rent ₹5,000 → ₹7,000/day and ICU ₹7,500 → ₹9,500/day for six metros (Delhi, Mumbai, Chennai, Kolkata, Bangalore, Hyderabad) and their urban agglomeration</li>
+      <li>Maternity ₹50,000 → ₹1,00,000 (normal) and ₹75,000 → ₹1,50,000 (caesarean), now including baby care (replaces the separate ₹20,000 cap) and vaccination up to 1 year of age; maternity load considered for serving employees only in 2026-27</li>
+      <li>Critical illness ex-gratia ₹1,00,000 → ₹2,00,000</li>
+      <li>Cataract limit ₹40,000 → ₹50,000 per eye (inclusive of any type of lens), with pre- &amp; post-hospitalisation expenses</li>
+      <li>Dependent income eligibility limit ₹18,000 → ₹24,000 per month</li>
+      <li>Infertility treatment now in the base policy for all employees: standalone limit ₹2 lakh for eligible needy employees</li>
+      <li>For all insured: albumin infusion under daycare procedures; peritoneal dialysis under the base policy; oral chemotherapy (drugs, consultation fees and medically necessary investigations)</li>
+      <li>Domiciliary treatment now covers vector-borne diseases (Dengue, Chikungunya) and rare diseases listed by MoHFW under Group 2 and Group 3</li>
+    </ul>
+  </div>`;
+
   // ══════════ SECTION 3 – ACCOMMODATION (Officers only) ══════════
   if(isOfficer){
     H+=sec('🏠 Residential Accommodation','d3');
@@ -1808,6 +1877,12 @@ function buildResults(){
       });
       H+=`</table>`;
       if(isBM&&ls.ZM) H+=`<div class="infobox">🔖 <strong>ZM</strong> rate shown above where applicable.${sc==='VII'?' Scale VII: uniform rate applies to all officers — no separate BM/ZM enhancement.':''}</div>`;
+      if(sc==='VII'){
+        H+=`<div class="infobox">🔖 <strong>Scale VIII</strong> ceilings: ${D.leaseLoc.map((l,i)=>D.leaseVIII[i]?l+' – '+inr(D.leaseVIII[i]):null).filter(Boolean).join(' · ')}</div>`;
+      }
+      if(sc==='V'||sc==='VI'){
+        H+=`<div class="infobox">🔖 Vertical Heads of LCBs / MCBs / GIFT City &amp; SAMVs in Scale V &amp; VI are treated at par with ZMs for residential accommodation ceilings.</div>`;
+      }
       H+=`<div class="bnote" style="margin-top:8px">Effective 01.06.2025 · Ceilings inclusive of society maintenance charges, if any · Area classification as per latest census · Circular HRMD:17/2025-26 dated 28.05.2025</div>`;
     }
     H+=`</div>`;
@@ -1845,6 +1920,27 @@ function buildResults(){
       <div class="bnote">Competent Authority: Respective Lease Sanctioning Authority</div>
     </div>`;
 
+    // Bachelor accommodation / Non-eligibility / Owning house (Circular HRMD:17/2025-26, Annexure b)
+    if(['I','II','III','IV'].includes(sc)){
+      H+=`<div class="bc fi d3" style="margin-top:10px;">
+        <div class="bicon">🏢</div>
+        <div class="blbl">Bachelor Accommodation in Bank Quarters</div>
+        <div class="bnote">Officers up to Scale IV (residing without family) — at centres where demand for flats exceeds availability · 1 bedroom per occupant · SOP &amp; modalities to be issued separately</div>
+      </div>
+      <div class="bc fi d3" style="margin-top:10px;">
+        <div class="bicon">⚠️</div>
+        <div class="blbl">Non-Eligibility</div>
+        <div class="bnote">Scale I–IV officers are <strong>not eligible</strong> for Bank's Quarters or Leased Accommodation if they (or spouse / dependent child) own a Flat/House at the centre / place of duty. Officers under suspension are also not eligible.</div>
+      </div>`;
+    } else {
+      H+=`<div class="bc fi d3" style="margin-top:10px;">
+        <div class="bicon">🏠</div>
+        <div class="blbl">Owning a Flat/House at Place of Duty</div>
+        <div class="bnote">May apply for Bank's Quarters / Lease only if carpet area is below <strong>750 sq.ft (Scale V)</strong> or below <strong>900 sq.ft (Scale VI &amp; above)</strong> · Competent Authority: ${['V','VI'].includes(sc)?'Chief General Manager (CDO &amp; CLO)':'ED in-charge of HR'}</div>
+        <div class="bnote" style="margin-top:4px">Where the flat is not vacated by tenant: Bank's accommodation at its discretion if the officer is pursuing vacation vigorously (incl. legal steps) — ED in-charge of HR is Competent Authority · Each flat/house must meet the criteria · Officer should consent to lease own premises to the Bank for other staff (waiver: ED in-charge of HR) · Officers under suspension are not eligible</div>
+      </div>`;
+    }
+
     // Furniture
     const furn=D.furniture[sc];
     if(furn){
@@ -1852,7 +1948,8 @@ function buildResults(){
         <div class="bicon">🛋️</div>
         <div class="blbl">Furniture at Residence</div>
         ${bval(inr(furn))}
-        <div class="bnote">Monetary ceiling exclusive of taxes · wef 21.09.2022</div>
+        <div class="bnote">Monetary ceiling exclusive of GST · Revised wef 17.08.2026 (Circular HRMD:40/2026-27) · If furniture was already availed, additional eligibility = revised limit minus limit already used</div>
+        <div class="bnote" style="margin-top:4px">Newly included items: Air Purifier · Steam Iron / Hand-held Garment Steamer · Recliner · Fire Stick / Alexa / Google Home / Play Station · Projector / VR Equipment · CCTV / Dash Cam · Wireless Speakers / Music Station · Robotic Vacuum Cleaner · Chimney</div>
       </div>`;
     }
   }
@@ -1916,6 +2013,27 @@ function buildResults(){
       <div class="blbl">Lump-Sum Conveyance — AGMs Using Personal Car for Official Use</div>
       <div class="bsm">Metro: ₹20,000 &nbsp;<span style="font-size:12px;color:var(--text2);font-family:var(--sans)">| Urban: ₹18,000 | Others: ₹15,000</span></div>
       <div class="bnote">Per month · For AGMs using personal car for official purposes</div>
+    </div>`;
+  }
+
+  // ══════════ STAFF VEHICLE LOAN ══════════
+  const vl=D.vehicleLoan[sc];
+  if(vl){
+    const lk=n=>'₹'+n.toFixed(2)+' Lakh';
+    const isSS=sc==='SubStaff';
+    const cad=sc==='Clerk'?'confirmed clerks':(isSS?'confirmed sub-staff':'confirmed officers');
+    const w2elig=isSS?'2 years of completed service with basic pay not less than ₹20,830':'6 months of completed service';
+    H+=sec('🚙 Staff Vehicle Loan','d5');
+    H+=`<div class="bc fi d5">
+      <div class="bicon">🚙</div>
+      <div class="blbl">Staff Vehicle Loan — Maximum Limit${sc==='VII'?' (Scale VII &amp; VIII)':''}</div>
+      <table class="tbl"><tr><th>Vehicle</th><th class="r">EV / Hybrid</th><th class="r">Conventional</th></tr>
+        <tr><td>Four-Wheeler</td><td class="amt">${lk(vl.w4[0])}</td><td class="amt">${lk(vl.w4[1])}</td></tr>
+        <tr><td>Two-Wheeler</td><td class="amt">${lk(vl.w2[0])}</td><td class="amt">${lk(vl.w2[1])}</td></tr>
+      </table>
+      <div class="infobox">💹 <strong>Interest (simple):</strong> 6.00% for EV / Hybrid · 6.25% for Conventional vehicles (earlier 7.00%)</div>
+      <div class="bnote" style="margin-top:8px"><strong>Four-wheeler eligibility:</strong> ${cad} with 3 years of service; staff who joined under the Ex-Servicemen category: 6 months of confirmed service (i.e. one year after joining) · <strong>Two-wheeler eligibility:</strong> ${w2elig}</div>
+      <div class="bnote" style="margin-top:4px">Applicable to new loans from 17.08.2026 · Other terms of the Staff Vehicle Loan Scheme unchanged · Circular HRMD:39/2026-27 (CIR 24333) dt 17.08.2026</div>
     </div>`;
   }
 
@@ -2070,6 +2188,7 @@ function buildResults(){
     <strong>Indian Bank — Staff Benefit Schemes</strong><br>
     <br>
     Amounts marked "+GST" attract applicable Goods &amp; Services Tax.<br>
+    Updated for: Staff Vehicle Loan &amp; Furniture revisions (Circulars 24333 &amp; 24334, 17.08.2026), IBA Group Medical Insurance 2026-27 and Business Development Expenses (Circular 22284).<br>
     Quick-reference only — verify exact entitlements with HR department or official circulars before claiming.
   </div>`;
 
