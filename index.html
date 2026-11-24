@@ -748,7 +748,16 @@ const D = {
   },
 
   // 08. WOMEN BM INCENTIVE (monthly, Scale I–III BMs only)
-  womenBM:{I:1000,II:1000,III:1000}
+  womenBM:{I:1000,II:1000,III:1000},
+
+  // 17. STAFF HOUSING LOAN – limits in ₹ Lakh (Staff Housing Loan Scheme v2.0, effective 13.10.2025)
+  // Scale VI & VII share one limit. Scale VIII (180) / ED (200) / MD&CEO (225) have no button in this tool.
+  housing:{I:120,II:120,III:120,IV:145,V:150,VI:165,VII:165,Clerk:75,SubStaff:50},
+  // Additional loan for repairs / renovation / improvements (exclusive of the main limit; property at least 5 yrs old)
+  housingRepair:{I:30,II:30,III:30,IV:30,V:30,VI:30,VII:30,Clerk:18,SubStaff:12},
+
+  // 18. STAFF OVERDRAFT – diminishing drawing limit, ₹ Lakh (Circular HRMD:85/2019-20 dt 26.09.2019)
+  overdraft:{I:12,II:12,III:12,IV:12,V:12,VI:12,VII:12,Clerk:6,SubStaff:2.5}
 };
 
 
@@ -765,13 +774,13 @@ const behavior=reduceMotion?'auto':'smooth';
 
 document.documentElement.classList.add('js');
 const ico=(n,c='i')=>`<svg class="${c}" aria-hidden="true" focusable="false" width="20" height="20"><use href="#i-${n}"/></svg>`;
-const ICON_RULES=[[/newspaper/,'newspaper'],[/lump-sum/,'car'],[/call|handset|mobile/,'phone'],[/entertain/,'coffee'],[/business development/,'trend'],[/conveyance/,'route'],[/eye|spectacle/,'eye'],[/canteen/,'utensils'],[/cr[eè]che|baby/,'baby'],[/check-up/,'steth'],[/medical insurance/,'heart'],[/rental advance/,'coins'],[/garage/,'car'],[/brokerage/,'percent'],[/retention/,'key'],[/bachelor/,'bed'],[/non-eligib/,'ban'],[/owning/,'home'],[/lease|rent/,'home'],[/furniture/,'sofa'],[/petrol|fuel/,'fuel'],[/lodging/,'bed'],[/halting/,'moon'],[/maximum limit/,'car'],[/life insurance/,'shield'],[/outfit/,'shirt'],[/kit allowance/,'briefcase'],[/memento/,'gift'],[/women/,'star'],[/holiday homes/,'sun'],[/blood/,'drop'],[/sick/,'heart'],[/maternity/,'baby'],[/privilege/,'plane'],[/leave|\bcl\b/,'calendar']];
+const ICON_RULES=[[/housing|repair/,'home'],[/overdraft|festival/,'coins'],[/interest/,'percent'],[/^eligibility/,'user'],[/repayment/,'calendar'],[/newspaper/,'newspaper'],[/lump-sum/,'car'],[/call|handset|mobile/,'phone'],[/entertain/,'coffee'],[/business development/,'trend'],[/conveyance/,'route'],[/eye|spectacle/,'eye'],[/canteen/,'utensils'],[/cr[eè]che|baby/,'baby'],[/check-up/,'steth'],[/medical insurance/,'heart'],[/rental advance/,'coins'],[/garage/,'car'],[/brokerage/,'percent'],[/retention/,'key'],[/bachelor/,'bed'],[/non-eligib/,'ban'],[/owning/,'home'],[/lease|rent/,'home'],[/furniture/,'sofa'],[/petrol|fuel/,'fuel'],[/lodging/,'bed'],[/halting/,'moon'],[/maximum limit/,'car'],[/life insurance/,'shield'],[/outfit/,'shirt'],[/kit allowance/,'briefcase'],[/memento/,'gift'],[/women/,'star'],[/holiday homes/,'sun'],[/blood/,'drop'],[/sick/,'heart'],[/maternity/,'baby'],[/privilege/,'plane'],[/leave|\bcl\b/,'calendar']];
 function iconFor(label){
   const t=label.replace(/&amp;/g,'&').toLowerCase();
   for(const [re,n] of ICON_RULES)if(re.test(t))return n;
   return 'doc';
 }
-const SEC_ICON={monthly:'rupee',medical:'heart',accommodation:'home',travel:'plane',vehicle:'car',insurance:'shield',recognition:'award',leave:'calendar'};
+const SEC_ICON={housing:'coins',monthly:'rupee',medical:'heart',accommodation:'home',travel:'plane',insurance:'shield',recognition:'award',leave:'calendar'};
 const RN={I:1,II:2,III:3,IV:4,V:5,VI:6,VII:7};
 function ladder(n){
   let r='';
@@ -1015,22 +1024,79 @@ function buildResults(){
   }
   H+=sec('travel','Travel &amp; transport',trv);
 
-  // ── STAFF VEHICLE LOAN
-  const vl=D.vehicleLoan[sc];
-  if(vl){
-    const lk=n=>'₹'+n.toFixed(2)+' Lakh';
-    const isSS=sc==='SubStaff';
-    const cad=sc==='Clerk'?'confirmed clerks':(isSS?'confirmed sub-staff':'confirmed officers');
-    const w2elig=isSS?'2 years of completed service with basic pay not less than ₹20,830':'6 months of completed service';
-    H+=sec('vehicle','Staff vehicle loan',[ent(`Maximum limit${sc==='VII'?' (Scale VII &amp; VIII)':''}`,{
-      body:tbl(['Vehicle','EV / Hybrid','Conventional'],[
-          ['Four-wheeler',lk(vl.w4[0]),lk(vl.w4[1])],
-          ['Two-wheeler',lk(vl.w2[0]),lk(vl.w2[1])]
-        ])+
-        callout('<strong>Interest (simple):</strong> 6.00% for EV / Hybrid · 6.25% for Conventional vehicles (earlier 7.00%)')+
-        facts(`<strong>Four-wheeler eligibility:</strong> ${cad} with 3 years of service; staff who joined under the Ex-Servicemen category: 6 months of confirmed service (i.e. one year after joining) · <strong>Two-wheeler eligibility:</strong> ${w2elig}`)+
-        facts('Applicable to new loans from 17.08.2026 · Other terms of the Staff Vehicle Loan Scheme unchanged · Circular HRMD:39/2026-27 (CIR 24333) dt 17.08.2026')
-    })]);
+  // ── STAFF HOUSING LOAN & OVERDRAFT
+  {
+    const lakh=n=>'₹'+n+' Lakh';
+    const hl=[];
+    hl.push(ent(`Maximum housing loan limit${(sc==='VI'||sc==='VII')?' (Scale VI &amp; VII)':''}`,{
+      fig:[lakh(D.housing[sc])],
+      note:'Purchase of ready-built house / flat · Flat under construction · Land &amp; construction · Construction on own land · Lower of this limit or 90% of total cost · Staff Housing Loan Scheme v2.0, effective 13.10.2025'
+    }));
+    hl.push(ent('Additional loan — repairs, renovation &amp; improvements',{
+      fig:[lakh(D.housingRepair[sc])],
+      note:'Lower of this limit or 90% of estimated cost · Over and above the main housing loan limit · Only for properties at least 5 years old'
+    }));
+    hl.push(ent('Interest rate on housing loan',{
+      body:tbl(['Principal loan balance','Rate (simple)'],[['Up to ₹40 lakh','5.50% p.a.'],['Above ₹40 lakh','6.00% p.a.']])+
+        facts('Plus 50 bps if you will hold more than two properties (including the proposed one) · Penal interest 2% over the SHL rate on overdue amount · If you leave service other than by retirement / VRS, the full loan must be repaid, or Home Loan rate for the general public applies')
+    }));
+    hl.push(ent('Eligibility &amp; number of loans',{
+      note:'Confirmed employee with 2 years of continuous service · Ex-servicemen eligible on confirmation if total service (Bank + Defence) is at least 4 years · Maximum 3 housing loans for 3 properties in entire service · Not more than 2 properties in your name at any time (ancestral share excluded)'
+    }));
+    hl.push(ent('Repayment period &amp; exit age',{
+      note:'Up to 360 monthly instalments, including holiday period (max 270 for principal and 90 for interest) · Exit age 75 years for pension optees, NPS and ex-servicemen drawing Defence pension · Exit age 60 years for PF optees',
+      body:callout('<strong>Repaying capacity:</strong> net take-home pay after the proposed recovery must be at least the <strong>lower of 40% of gross monthly salary or ₹35,000</strong>.')
+    }));
+    hl.push(ent('Holiday period before recovery starts',{
+      pairs:[['New house / flat construction','18 months'],['Construction by a Government agency','36 months'],['Flat in Bank-approved project','48 months'],['Ready-built house / flat','From next month']],
+      note:'Months counted from first disbursement, or the month after completion if earlier'
+    }));
+    hl.push(ent('Charges &amp; insurance',{
+      note:'Processing and other charges exempted · No prepayment charges when closed from own sources or sale of property (1% if taken over by another lender) · Group life cover or individual term life cover mandatory for the loan amount · House to be insured against fire and natural calamities until loan is closed'
+    }));
+
+    // Staff vehicle loan (merged into this section)
+    const vl=D.vehicleLoan[sc];
+    if(vl){
+      const lk=n=>'₹'+n.toFixed(2)+' Lakh';
+      const isSS=sc==='SubStaff';
+      const cad=sc==='Clerk'?'confirmed clerks':(isSS?'confirmed sub-staff':'confirmed officers');
+      const w2elig=isSS?'2 years of completed service with basic pay not less than ₹20,830':'6 months of completed service';
+      hl.push(ent(`Staff vehicle loan — maximum limit${sc==='VII'?' (Scale VII &amp; VIII)':''}`,{
+        body:tbl(['Vehicle','EV / Hybrid','Conventional'],[
+            ['Four-wheeler',lk(vl.w4[0]),lk(vl.w4[1])],
+            ['Two-wheeler',lk(vl.w2[0]),lk(vl.w2[1])]
+          ])+
+          callout('<strong>Interest (simple):</strong> 6.00% for EV / Hybrid · 6.25% for Conventional vehicles (earlier 7.00%)')+
+          facts(`<strong>Four-wheeler eligibility:</strong> ${cad} with 3 years of service; staff who joined under the Ex-Servicemen category: 6 months of confirmed service (i.e. one year after joining) · <strong>Two-wheeler eligibility:</strong> ${w2elig}`)+
+          facts('Applicable to new loans from 17.08.2026 · Other terms of the Staff Vehicle Loan Scheme unchanged · Circular HRMD:39/2026-27 (CIR 24333) dt 17.08.2026')
+      }));
+    }
+
+    const od=D.overdraft[sc];
+    hl.push(ent('Staff overdraft — maximum limit',{
+      fig:[lakh(od)],
+      note:[
+        isOfficerScale(sc)?'One month gross pay (including allowances) for each completed year of service, subject to the maximum shown':'Cadre-wise maximum limit · Sub staff limit applies to sweepers too',
+        'Any bona fide purpose · Not to be used for speculative purposes · Interest: one-year MCLR (floating), payable monthly and fully serviced · Penal interest 2% above the applicable rate on any overdrawn amount',
+        'Confirmed employees with minimum 2 years of service (including probation) · Take-home pay after all loan and statutory deductions, including interest on the full OD limit, must not be less than 40%',
+        'Not eligible if without pay for more than one month in the preceding year, or if cheques bounced for insufficient balance in the last year · Not extended to suspended employees',
+        'Only one OD account per employee · Account can be held at any branch of your choice and transferred later · Salary must be credited to the OD account · All charges (processing, service, ledger folio, cheque book) waived',
+        'On reaching age 55, 50% of the sanctioned limit reduces in 60 monthly instalments until retirement · Retirement date is the expiry date of the facility · Any outstanding at retirement or separation is recovered with interest from terminal benefits',
+        'Limit can be enhanced on increment or promotion · Limit is brought down if basic pay is reduced · Circular HRMD:85/2019-20 dt 26.09.2019'
+      ]
+    }));
+
+    const officer=isOfficerScale(sc);
+    hl.push(ent(officer?'Festival advance (interest-free salary advance)':'Festival advance',{
+      note:[
+        officer
+          ?'Maximum: sum of one month’s Basic Pay, DA, PQP and FPP'
+          :'Maximum: sum of one month’s Basic Pay, DA, PQP, FPP and Special Pay',
+        'Ceiling removed for all employees irrespective of date of joining · Can be availed once in a calendar year · Other terms as per Circular HRMD 159/2017-18 dt 23.03.2018 · Circular HRMD:166/2018-19 dt 21.03.2019'
+      ]
+    }));
+    H+=sec('housing','Staff loans &amp; advances',hl);
   }
 
   // ── INSURANCE & ASSETS
@@ -1072,7 +1138,7 @@ function buildResults(){
   H+=`<footer class="foot">
     <p><strong>Indian Bank — Staff Benefit Schemes</strong></p>
     <p>Amounts marked “+GST” attract applicable Goods &amp; Services Tax.</p>
-    <p>Updated for: Staff Vehicle Loan &amp; Furniture revisions (Circulars 24333 &amp; 24334, 17.08.2026), IBA Group Medical Insurance 2026-27 and Business Development Expenses (Circular 22284).</p>
+    <p>Updated for: Staff Vehicle Loan &amp; Furniture revisions (Circulars 24333 &amp; 24334, 17.08.2026), IBA Group Medical Insurance 2026-27, Business Development Expenses (Circular 22284), Staff Housing Loan Scheme v2.0, Staff Overdraft Scheme (Circular HRMD:85/2019-20) and Festival Advance (Circular HRMD:166/2018-19).</p>
     <p>Quick-reference only — verify exact entitlements with HR department or official circulars before claiming.</p>
   </footer>`;
   return H;
