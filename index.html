@@ -741,6 +741,12 @@ const D = {
   },
   bdConv:{AA:{w4:20,w2:15},A:{w4:15,w2:10},BBB:{w4:10,w2:5}},
 
+  // COMPENSATION ON TRANSFER – lump sum (officers; up to Scale III vs Scale IV & above)
+  transferComp:{I:40000,II:40000,III:40000,IV:50000,V:50000,VI:50000,VII:50000,Clerk:null,SubStaff:null},
+
+  // MEDICAL AID – annual reimbursement w.e.f. 01.11.2022 (JMG & MMG = Scale I–III; SMG & TEG = Scale IV & above)
+  medicalAid:{I:13000,II:13000,III:13000,IV:15400,V:15400,VI:15400,VII:15400,Clerk:null,SubStaff:null},
+
   // 13. RETIREMENT MEMENTO (on superannuation)
   momento:{
     I:25000,II:25000,III:25000,IV:30000,V:30000,VI:40000,VII:40000,
@@ -774,7 +780,7 @@ const behavior=reduceMotion?'auto':'smooth';
 
 document.documentElement.classList.add('js');
 const ico=(n,c='i')=>`<svg class="${c}" aria-hidden="true" focusable="false" width="20" height="20"><use href="#i-${n}"/></svg>`;
-const ICON_RULES=[[/housing|repair/,'home'],[/overdraft|festival/,'coins'],[/interest/,'percent'],[/^eligibility/,'user'],[/repayment/,'calendar'],[/newspaper/,'newspaper'],[/lump-sum/,'car'],[/call|handset|mobile/,'phone'],[/entertain/,'coffee'],[/business development/,'trend'],[/conveyance/,'route'],[/eye|spectacle/,'eye'],[/canteen/,'utensils'],[/cr[eè]che|baby/,'baby'],[/check-up/,'steth'],[/medical insurance/,'heart'],[/rental advance/,'coins'],[/garage/,'car'],[/brokerage/,'percent'],[/retention/,'key'],[/bachelor/,'bed'],[/non-eligib/,'ban'],[/owning/,'home'],[/lease|rent/,'home'],[/furniture/,'sofa'],[/petrol|fuel/,'fuel'],[/lodging/,'bed'],[/halting/,'moon'],[/maximum limit/,'car'],[/life insurance/,'shield'],[/outfit/,'shirt'],[/kit allowance/,'briefcase'],[/memento/,'gift'],[/women/,'star'],[/holiday homes/,'sun'],[/blood/,'drop'],[/sick/,'heart'],[/maternity/,'baby'],[/privilege/,'plane'],[/leave|\bcl\b/,'calendar']];
+const ICON_RULES=[[/housing|repair/,'home'],[/overdraft|festival/,'coins'],[/interest/,'percent'],[/^eligibility/,'user'],[/repayment/,'calendar'],[/newspaper/,'newspaper'],[/lump-sum/,'car'],[/transfer/,'route'],[/medical aid/,'heart'],[/call|handset|mobile/,'phone'],[/entertain/,'coffee'],[/business development/,'trend'],[/conveyance/,'route'],[/eye|spectacle/,'eye'],[/canteen/,'utensils'],[/cr[eè]che|baby/,'baby'],[/check-up/,'steth'],[/medical insurance/,'heart'],[/rental advance/,'coins'],[/garage/,'car'],[/brokerage/,'percent'],[/retention/,'key'],[/bachelor/,'bed'],[/non-eligib/,'ban'],[/owning/,'home'],[/lease|rent/,'home'],[/furniture/,'sofa'],[/petrol|fuel/,'fuel'],[/lodging/,'bed'],[/halting/,'moon'],[/maximum limit/,'car'],[/life insurance/,'shield'],[/outfit/,'shirt'],[/kit allowance/,'briefcase'],[/memento/,'gift'],[/women/,'star'],[/holiday homes/,'sun'],[/blood/,'drop'],[/sick/,'heart'],[/maternity/,'baby'],[/privilege/,'plane'],[/leave|\bcl\b/,'calendar']];
 function iconFor(label){
   const t=label.replace(/&amp;/g,'&').toLowerCase();
   for(const [re,n] of ICON_RULES)if(re.test(t))return n;
@@ -924,6 +930,11 @@ function buildResults(){
     note:'Till child attains 3 years · Max 2 children in entire career · Apply via HR Connect within 3 months'
   }));
   med.push(ent('Annual medical check-up',{fig:['₹2,500','/ year (staff)'],note:'Spouse: ₹2,000 / year · For staff &amp; spouse above 35 years of age'}));
+  const ma=D.medicalAid[sc];
+  med.push(ma
+    ?ent('Medical aid',{fig:[inr(ma),'/ year'],note:`Reimbursement of medical expenses · On and from 01.11.2022 · ${['I','II','III'].includes(sc)?'Officers in JMG &amp; MMG scales (Scale I–III)':'Officers in SMG &amp; TEG scales (Scale IV &amp; above)'}`})
+    :ent('Medical aid',{na:true,note:'Stated for officers (JMG, MMG, SMG &amp; TEG scales) only'}));
+  med.push(ent('Annual eye check-up',{fig:['₹500','/ year'],note:'Reimbursement towards annual eye check-up · All employees'}));
   med.push(ent('Group medical insurance policy 2026-27 (IBA / NICL)',{
     note:'Policy period 01.11.2026 to 31.10.2027 · Includes all terms of the 2025-26 policy plus the additional coverage agreed on 17.07.2026',
     body:
@@ -1015,6 +1026,11 @@ function buildResults(){
   if(halt){
     trv.push(ent('Halting allowance — per day (w.e.f. 01.11.2020)',{body:tbl(['Location','Per day'],D.haltLoc.map((loc,i)=>[loc,inr(halt[i])]))}));
   }
+
+  const tc=D.transferComp[sc];
+  trv.push(tc
+    ?ent('Compensation on transfer',{fig:[inr(tc),'lump sum'],note:`Lump sum for packaging, local transportation, insuring baggage etc. · ${['I','II','III'].includes(sc)?'Officers up to Scale III':'Officers in Scale IV &amp; above'} · In addition, either 15 days’ lodging &amp; boarding charges or 15 days’ Halting Allowance from the date of joining at the new place`})
+    :ent('Compensation on transfer',{na:true,note:'Stated for officers only'}));
 
   if(['IV','V','VI','VII'].includes(sc)){
     trv.push(ent('Lump-sum conveyance — AGMs using personal car for official use',{
