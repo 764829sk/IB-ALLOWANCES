@@ -540,16 +540,31 @@ html.splash-active,html.splash-active body{overflow:hidden;height:100%}
   opacity:0;transform:scale(.6);animation:splashRing 1.1s cubic-bezier(.16,1,.3,1) forwards;animation-delay:.08s}
 #splash-logo{position:relative;width:84px;height:84px;border-radius:20px;opacity:0;filter:drop-shadow(0 10px 30px rgba(70,110,230,.45));
   transform:scale(.35) rotate(-8deg);animation:splashZoom .85s cubic-bezier(.16,1,.3,1) forwards}
+#splash-logo.spin-out{animation:splashSpinOut .6s cubic-bezier(.4,0,.2,1) forwards}
 .splash-brand{opacity:0;text-align:center;font-weight:800;letter-spacing:.03em;font-size:1.05rem;color:var(--ink);
   animation:splashFade .5s ease forwards;animation-delay:.55s}
 .splash-brand span{display:block;margin-top:4px;font-weight:500;letter-spacing:.01em;font-size:.78rem;color:var(--ink2)}
+.splash-brand.spin-out{animation:splashFade .35s ease forwards reverse}
 @keyframes splashZoom{0%{opacity:0;transform:scale(.35) rotate(-8deg)}55%{opacity:1;transform:scale(1.12) rotate(1deg)}
   80%{transform:scale(.96) rotate(0deg)}100%{opacity:1;transform:scale(1) rotate(0deg)}}
+@keyframes splashSpinOut{0%{opacity:1;transform:scale(1) rotate(0deg)}60%{opacity:1;transform:scale(1.15) rotate(260deg)}
+  100%{opacity:0;transform:scale(.2) rotate(540deg)}}
 @keyframes splashRing{0%{opacity:0;transform:scale(.5)}40%{opacity:1}100%{opacity:0;transform:scale(1.9)}}
 @keyframes splashFade{to{opacity:1}}
 @media (prefers-reduced-motion:reduce){
   #splash-logo,.splash-brand,.splash-ring::before{animation:none;opacity:1;transform:none}
+  #splash-logo.spin-out,.splash-brand.spin-out{animation:none;opacity:0}
   #site-splash{transition:opacity .2s}
+}
+@media (max-width:640px){
+  .splash-ring{width:168px;height:168px}
+  .splash-ring::after{content:"";position:absolute;inset:-26px;border-radius:50%;
+    background:radial-gradient(circle,rgba(150,185,255,.5),rgba(150,185,255,0) 70%);
+    opacity:0;animation:splashFade .6s ease forwards;animation-delay:.1s;pointer-events:none}
+  #splash-logo{width:128px;height:128px;border-radius:28px;
+    filter:drop-shadow(0 14px 40px rgba(120,160,255,.65)) brightness(1.18) saturate(1.12)}
+  .splash-brand{font-size:1.2rem}
+  .splash-brand span{font-size:.86rem}
 }
 </style>
 </head>
@@ -1570,6 +1585,8 @@ $$('.g').forEach(b=>b.insertAdjacentHTML('afterbegin',badge(b.dataset.scale)));
     return [W/2+x*k*S,H*.57-y*k*S,d,x,y];
   }
   const L=(v=>{const m=Math.hypot(...v);return v.map(a=>a/m);})([-.45,.62,.65]);
+  const medallionImg=new Image();
+  (function(){const em=document.querySelector('.emblem');if(em)medallionImg.src=em.getAttribute('src');})();
   function colour(n,hi,lo){
     const x=n[0]*cy_+n[2]*sy_,z=-n[0]*sy_+n[2]*cy_,y=n[1]*cp-z*sp,d=n[1]*sp+z*cp;
     const df=Math.max(0,x*L[0]+y*L[1]+d*L[2]);
@@ -1627,11 +1644,15 @@ $$('.g').forEach(b=>b.insertAdjacentHTML('afterbegin',badge(b.dataset.scale)));
       const tri=[[-w*s,y,zz],[w*s,y,zz],[0,t,zz]];face(tri,[0,0,s],GOLD,GOLDSH);
       face([[-w*.82*s,y+5,zz+.6*s],[w*.82*s,y+5,zz+.6*s],[0,t-8,zz+.6*s]],[0,0,s],MARBLE,SHADE);
       if(cy_*s*cp>.05){
-        const c=proj([0,y+22,zz+2*s]),r=15*S,gr=g.createRadialGradient(c[0]-r*.35,c[1]-r*.4,r*.1,c[0],c[1],r);
-        gr.addColorStop(0,'#FF9BA1');gr.addColorStop(.4,'#DA303E');gr.addColorStop(1,'#6E0712');
+        const c=proj([0,y+22,zz+2*s]),r=15*S;
         g.save();g.translate(c[0],c[1]);g.scale(Math.max(.2,cy_*s),1);g.translate(-c[0],-c[1]);
-        g.beginPath();g.arc(c[0],c[1],r,0,TAU);g.fillStyle=gr;g.fill();g.lineWidth=2*S;g.strokeStyle='#F6D78F';g.stroke();
-        g.fillStyle='#fff';g.font=`800 ${18*S}px "Plus Jakarta Sans",sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText('₹',c[0],c[1]+S);g.restore();
+        g.beginPath();g.arc(c[0],c[1],r,0,TAU);g.fillStyle='#F3E6C4';g.fill();g.lineWidth=2*S;g.strokeStyle='#F6D78F';g.stroke();
+        if(medallionImg.complete&&medallionImg.naturalWidth){
+          g.save();g.beginPath();g.arc(c[0],c[1],r*.86,0,TAU);g.clip();
+          const d=r*1.72;g.drawImage(medallionImg,c[0]-d/2,c[1]-d/2,d,d);
+          g.restore();
+        }
+        g.restore();
       }
     }
     roof.sort((a,b)=>a.d-b.d).forEach(r=>r.f());
@@ -1720,22 +1741,33 @@ render();
 (function(){
   var splash=document.getElementById('site-splash');
   var logo=document.getElementById('splash-logo');
+  var brand=document.querySelector('.splash-brand');
   var emblem=document.querySelector('.emblem');
   if(!splash) return;
   if(logo&&emblem) logo.src=emblem.getAttribute('src');
-  var closed=false;
-  function closeSplash(){
+  var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var closed=false,spun=false;
+  function hideOverlay(){
     if(closed) return;
     closed=true;
     splash.classList.add('hide');
     document.documentElement.classList.remove('splash-active');
     setTimeout(function(){ splash.remove(); },600);
   }
-  // let the zoom-in play out, then reveal the site
-  var hold=setTimeout(closeSplash,1500);
+  function spinThenOpen(){
+    if(spun) return;
+    spun=true;
+    if(reduce){ hideOverlay(); return; }
+    logo&&logo.classList.add('spin-out');
+    brand&&brand.classList.add('spin-out');
+    setTimeout(hideOverlay,600);
+  }
+  // the logo holds on screen for 4s, then spins itself away and the page opens
+  var hold=setTimeout(spinThenOpen,4000);
   // allow an impatient visitor to skip it with a tap/click/key
-  splash.addEventListener('click',function(){ clearTimeout(hold); closeSplash(); });
-  window.addEventListener('keydown',function(){ clearTimeout(hold); closeSplash(); },{once:true});
+  function skip(){ clearTimeout(hold); spinThenOpen(); }
+  splash.addEventListener('click',skip);
+  window.addEventListener('keydown',skip,{once:true});
 })();
 
 </script>
