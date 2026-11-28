@@ -1746,6 +1746,55 @@ render();
   
   var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
   var closed=false,spun=false;
+
+  // ── Auto scroll: runs slowly after the page opens. Any touch, click, key, mouse movement or
+  //    scroll by the visitor pauses it; after IDLE_MS with no such activity it resumes
+  //    from wherever the page currently is.
+  var AUTO_SPEED=45;            // pixels per second — raise for faster, lower for slower
+  var IDLE_MS=3000;             // quiet time before auto scroll resumes
+  var autoOn=false,autoPos=0,autoLast=0,autoSet=0,autoRaf=0,idleT=0,lastX=-1,lastY=-1;
+  function stopAutoScroll(){
+    autoOn=false;
+    cancelAnimationFrame(autoRaf);
+    document.documentElement.style.scrollBehavior='';
+  }
+  // visitor did something: pause now, and (re)start the countdown to resume
+  function activity(){
+    stopAutoScroll();
+    clearTimeout(idleT);
+    idleT=setTimeout(startAutoScroll,IDLE_MS);
+  }
+  ['wheel','touchstart','touchmove','touchend','pointerdown','mousedown','click','keydown'].forEach(function(ev){
+    window.addEventListener(ev,activity,{capture:true,passive:true});
+  });
+  // only genuine mouse movement counts (browsers fire fake zero-movement events while the page scrolls)
+  window.addEventListener('mousemove',function(e){
+    if(lastX<0){ lastX=e.screenX; lastY=e.screenY; return; }
+    if(Math.abs(e.screenX-lastX)+Math.abs(e.screenY-lastY)<3) return;
+    lastX=e.screenX; lastY=e.screenY;
+    activity();
+  },{capture:true,passive:true});
+  function autoStep(t){
+    if(!autoOn) return;
+    var dt=Math.min((t-autoLast)/1000,0.1);
+    autoLast=t;
+    var max=document.documentElement.scrollHeight-window.innerHeight;
+    // page moved by something other than us (scrollbar drag, momentum scroll, etc.): treat as activity
+    if(Math.abs(window.scrollY-autoSet)>3){ activity(); return; }
+    if(autoPos>=max-1){ autoRaf=requestAnimationFrame(autoStep); return; } // wait at bottom in case content grows
+    autoPos=Math.min(autoPos+AUTO_SPEED*dt,max);
+    autoSet=Math.round(autoPos);
+    window.scrollTo(0,autoSet);
+    autoRaf=requestAnimationFrame(autoStep);
+  }
+  function startAutoScroll(){
+    if(autoOn||reduce) return;      // respects the "reduce motion" system setting
+    autoOn=true;
+    autoPos=window.scrollY; autoSet=Math.round(autoPos);   // continue from the current position
+    document.documentElement.style.scrollBehavior='auto';  // smooth-scroll CSS would fight the steps
+    autoLast=performance.now();
+    autoRaf=requestAnimationFrame(autoStep);
+  }
   function hideOverlay(){
     if(closed) return;
     closed=true;
@@ -1753,6 +1802,8 @@ render();
     splash.classList.add('hide');
     document.documentElement.classList.remove('splash-active');
     setTimeout(function(){ splash.remove(); document.body.classList.remove('page-open'); },900);
+    // begin the slow automatic scroll once the page has finished opening
+    setTimeout(startAutoScroll,700);
   }
   function spinThenOpen(){
     if(spun) return;
