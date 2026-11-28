@@ -621,6 +621,35 @@ body.toon-motion .gl{animation:glSweep 5.5s ease-in-out infinite}
     radial-gradient(ellipse 40% 22% at 38% 14%,rgba(255,255,255,.22),transparent 70%)}
 body.toon-motion .fig-walkin::after{animation:glSweep 2.6s linear infinite}
 .fig-walkin .wsh{position:absolute;left:18%;right:18%;bottom:calc(var(--fh)*.012);height:calc(var(--fh)*.07);border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.55),transparent);z-index:-1}
+
+/* mascot search card — opens when the miniature is clicked */
+.toon-search{position:fixed;z-index:61;left:calc(var(--rest-x,16px) + 150px);bottom:22px;width:min(360px,calc(100vw - 24px));max-height:min(60vh,460px);display:flex;flex-direction:column;
+  background:linear-gradient(160deg,rgba(26,38,70,.97),rgba(10,18,36,.98));border:1px solid rgba(255,255,255,.18);border-radius:18px;box-shadow:0 22px 60px -12px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.2);
+  color:var(--ink);font-family:var(--font);transform-origin:0 100%;animation:srchIn .32s cubic-bezier(.3,1.4,.5,1)}
+.toon-search[hidden]{display:none}
+@keyframes srchIn{from{opacity:0;transform:translateX(-14px) scale(.9)}to{opacity:1;transform:none}}
+.toon-search::before{content:"";position:absolute;left:-7px;bottom:42px;border:7px solid transparent;border-right-color:rgba(26,38,70,.97);border-left-width:0}
+.ts-head{display:flex;align-items:center;gap:8px;padding:12px 14px 4px;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+.ts-head button{margin-left:auto;background:none;border:0;color:var(--mute);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:6px}
+.ts-head button:hover{color:var(--ink)}
+.ts-box{margin:6px 12px 8px;display:flex;align-items:center;gap:8px;padding:0 12px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16)}
+.ts-box:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,208,138,.2)}
+.ts-box svg{width:17px;height:17px;flex:none;stroke:var(--mute);fill:none;stroke-width:2;stroke-linecap:round}
+.ts-box input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--ink);font:600 15px var(--font);padding:11px 0}
+.ts-box input::placeholder{color:var(--mute);font-weight:500}
+.ts-msg{padding:2px 16px 10px;font-size:13px;color:var(--ink2);line-height:1.45}
+.ts-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 12px}
+.ts-chips button{font:600 12.5px var(--font);color:var(--ink);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:99px;padding:6px 11px;cursor:pointer}
+.ts-chips button:hover{background:rgba(255,255,255,.16)}
+.ts-list{list-style:none;margin:0;padding:0 8px 10px;overflow:auto;overscroll-behavior:contain}
+.ts-list button{display:block;width:100%;text-align:left;background:none;border:0;border-radius:10px;padding:9px 10px;cursor:pointer;color:var(--ink);font-family:var(--font)}
+.ts-list button:hover,.ts-list button:focus-visible{background:rgba(255,255,255,.09)}
+.ts-list b{display:block;font-size:14px;font-weight:700}
+.ts-list small{display:block;margin-top:2px;font-size:12px;color:var(--mute)}
+.ts-list em{font-style:normal;color:var(--gold);font-weight:700}
+.ent.ts-flash{animation:tsFlash 2.2s ease-out}
+@keyframes tsFlash{0%,30%{box-shadow:0 0 0 3px var(--gold),0 0 32px rgba(245,208,138,.55)}100%{box-shadow:0 0 0 0 transparent}}
+@media (max-width:640px){.toon-search{left:8px;right:8px;width:auto;bottom:176px}.toon-search::before{display:none}}
 /* standing: slow breathing and a relaxed weight shift */
 body.toon-motion .fig-breath{animation:figBreath 4.4s ease-in-out infinite}
 body.toon-motion .toon-mascot:not(.walk) .fig-tw{animation:figRelax 9s ease-in-out infinite}
@@ -2110,11 +2139,56 @@ addEventListener('pointermove',function(e){if(!S.mascot||trk||lookBusy||m.classL
     dx=Math.max(-1,Math.min(1,(X-(r.left+r.width/2))/Math.max(300,innerWidth*.5))),
     dy=Math.max(-1,Math.min(1,(Y-(r.top+r.height*.12))/Math.max(300,innerHeight*.5)));
     setLook((dx*10).toFixed(1),(dx*10).toFixed(1),(dy*-6).toFixed(1));});},{passive:true});
-function poke(){nod();say(pick(CONFIG.pokes),3600);}
+
+/* ───────── click the miniature → search the benefits ───────── */
+var sOpen=false,sq=null;
+var sc=document.createElement('div');sc.className='toon-search';sc.hidden=true;sc.setAttribute('role','dialog');sc.setAttribute('aria-label','Search benefits');
+sc.innerHTML='<div class="ts-head">Search benefits<button type="button" aria-label="Close search">&times;</button></div>'+
+ '<label class="ts-box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" placeholder="e.g. petrol, lodging, spectacles" autocomplete="off" aria-label="Search entitlements"></label>'+
+ '<div class="ts-msg" aria-live="polite"></div><div class="ts-chips"></div><ul class="ts-list"></ul>';
+document.body.appendChild(sc);
+sq=sc.querySelector('input');var tsMsg=sc.querySelector('.ts-msg'),tsList=sc.querySelector('.ts-list'),tsChips=sc.querySelector('.ts-chips');
+['petrol','lodging','spectacles','leave','newspaper','medical'].forEach(function(w){var b=document.createElement('button');b.type='button';b.textContent=w;b.onclick=function(){sq.value=w;runSearch();sq.focus();};tsChips.appendChild(b);});
+function textOf(el){return el?el.textContent.replace(/\s+/g,' ').trim():'';}
+function runSearch(){
+  var q=sq.value.trim().toLowerCase();tsList.innerHTML='';
+  var res=document.getElementById('results'),lay=document.getElementById('layout');
+  var ready=res&&lay&&!lay.hidden&&res.querySelector('.ent');
+  if(!ready){tsMsg.textContent='Please choose your grade (and posting) first, then I can search your entitlements.';tsChips.hidden=true;return;}
+  if(!q){tsMsg.textContent='Type a word, or tap a suggestion.';tsChips.hidden=false;return;}
+  tsChips.hidden=true;
+  var words=q.split(/\s+/),hits=[].slice.call(res.querySelectorAll('.ent')).filter(function(e){return words.every(function(w){return e.dataset.q.indexOf(w)>-1;});});
+  if(!hits.length){tsMsg.textContent='Nothing found for “'+sq.value.trim()+'”. Try a shorter word.';return;}
+  tsMsg.textContent=hits.length+(hits.length===1?' match':' matches')+' — tap one to jump to it.';
+  hits.slice(0,12).forEach(function(e){
+    var li=document.createElement('li'),b=document.createElement('button');b.type='button';
+    var t=document.createElement('b');t.textContent=textOf(e.querySelector('h3'));
+    var sm=document.createElement('small'),fig=e.classList.contains('na')?'Not applicable':textOf(e.querySelector('.ent-fig')),sec=textOf(e.closest('.sec')&&e.closest('.sec').querySelector('h2'));
+    sm.textContent=[sec,fig].filter(Boolean).join(' · ');
+    b.appendChild(t);b.appendChild(sm);b.onclick=function(){jumpTo(e);};li.appendChild(b);tsList.appendChild(li);
+  });
+  if(hits.length>12){var more=document.createElement('li');more.className='ts-msg';more.textContent='+ '+(hits.length-12)+' more — refine your search.';tsList.appendChild(more);}
+}
+function jumpTo(e){
+  closeSearch(true);
+  var q=document.getElementById('q');if(q&&q.value){q.value='';q.dispatchEvent(new Event('input',{bubbles:true}));}
+  var hn=document.getElementById('hideNA');if(hn&&hn.checked&&e.classList.contains('na')){hn.checked=false;hn.dispatchEvent(new Event('change',{bubbles:true}));}
+  setTimeout(function(){e.scrollIntoView({behavior:S.motion?'smooth':'auto',block:'center'});e.classList.remove('ts-flash');void e.offsetWidth;e.classList.add('ts-flash');setTimeout(function(){e.classList.remove('ts-flash');},2300);say('Here you go!',2200);},60);
+}
+function openSearch(){
+  sOpen=true;sc.hidden=false;bub.hidden=true;m.classList.remove('talk');runSearch();setTimeout(function(){sq.focus({preventScroll:true});},60);
+}
+function closeSearch(quiet){sOpen=false;sc.hidden=true;if(!quiet)sq.blur();}
+sc.querySelector('.ts-head button').onclick=function(){closeSearch();};
+sq.addEventListener('input',runSearch);
+sc.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSearch();m.focus&&m.focus();}});
+document.addEventListener('click',function(e){if(sOpen&&!sc.contains(e.target)&&!m.contains(e.target))closeSearch();});
+function poke(){if(m.classList.contains('walk'))return;nod();if(sOpen)closeSearch();else openSearch();}
+
 m.addEventListener('click',poke);
 m.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();poke();}});
 var tipI=0;
-setInterval(function(){if(!S.mascot||document.hidden||!m.classList.contains('on')||m.classList.contains('walk'))return;
+setInterval(function(){if(!S.mascot||document.hidden||!m.classList.contains('on')||m.classList.contains('walk')||sOpen)return;
   if(Date.now()-lastSay>CONFIG.tipEveryMs)say(CONFIG.tips[tipI++%CONFIG.tips.length],5200);},6000);
 // small human fidgets while standing: glance around, shift weight, shrug, tilt the head
 var nextFid=Date.now()+14000;
