@@ -565,6 +565,133 @@ body.page-open>*:not(#site-splash){animation:pageZoomOut .7s cubic-bezier(.16,1,
   .splash-brand{font-size:1.2rem}
   .splash-brand span{font-size:.86rem}
 }
+/* ═════════ TOON LAYER — cartoon / playful extras ═════════ */
+body{--toon1:#FF5C8A;--toon2:#FFD166;--toon3:#6EE7F9;--toon4:#A78BFA;
+  --toon-font:"Baloo 2","Fredoka","Chalkboard SE","Comic Neue","Comic Sans MS","Marker Felt","Trebuchet MS",var(--font)}
+body.mood-ocean{--toon1:#38BDF8;--toon2:#34D399;--toon3:#FDE68A;--toon4:#818CF8}
+body.mood-sunny{--toon1:#FF9F1C;--toon2:#FFD23F;--toon3:#FF595E;--toon4:#8AC926}
+body.mood-jungle{--toon1:#7ED957;--toon2:#FFD166;--toon3:#FF8FA3;--toon4:#4DD0E1}
+.toon-mascot[hidden],.toon-rocket[hidden],.toon-panel[hidden],.toon-bubble[hidden]{display:none!important}
+
+/* confetti / sparkle canvas */
+.toon-fx{position:fixed;inset:0;width:100vw;height:100vh;z-index:70;pointer-events:none}
+
+/* ── Coiny the mascot ── */
+.toon-mascot{position:fixed;left:14px;bottom:12px;width:96px;z-index:55;cursor:pointer;opacity:0;transform:scale(.2);transform-origin:50% 100%;
+  -webkit-tap-highlight-color:transparent;outline:none;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.toon-mascot.on{opacity:1;transform:none;animation:cnEnter .9s cubic-bezier(.3,1.7,.5,1) backwards}
+.toon-mascot:focus-visible{filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 6px var(--gold))}
+@keyframes cnEnter{from{opacity:0;transform:translateY(80px) scale(.3)}}
+.cn{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 8px 10px rgba(0,0,0,.4))}
+.cn *{stroke-linecap:round;stroke-linejoin:round}
+.cn-sh{fill:rgba(0,0,0,.35);transform-origin:60px 137px}
+.cn-coin{stroke:#3B2208;stroke-width:4}
+.cn-inner{fill:none;stroke:#B9731B;stroke-opacity:.45;stroke-width:2;stroke-dasharray:3 4}
+.cn-rs{font:800 15px Arial,sans-serif;fill:#9A5E12;text-anchor:middle}
+.cn-leg rect{fill:#FFE9A8;stroke:#3B2208;stroke-width:3}
+.cn-leg ellipse{fill:var(--toon1);stroke:#3B2208;stroke-width:3}
+.cn-arm path{fill:none;stroke:#3B2208;stroke-width:9}
+.cn-arm path+path{stroke:#F9CB5B;stroke-width:4;display:none}
+.cn-arm circle{fill:#fff;stroke:#3B2208;stroke-width:3}
+.cn-ant path{fill:none;stroke:#3B2208;stroke-width:3.5}
+.cn-ant circle{fill:var(--toon1);stroke:#3B2208;stroke-width:3}
+.cn-eyew{fill:#fff;stroke:#3B2208;stroke-width:3}
+.cn-pup circle:first-child{fill:#1B1026}
+.cn-pup circle+circle{fill:#fff}
+.cn-cheek{fill:#FF7A8A;opacity:.55}
+.cn-mouth{stroke:#3B2208;stroke-width:3.6;fill:none}
+.cn-mouth.open{fill:#7A1F2B}
+.cn .eye{transform-box:fill-box;transform-origin:center;transition:transform .08s}
+.cn.blink .eye{transform:scaleY(.08)}
+.cn .pup{transition:transform .09s linear}
+body.toon-motion .toon-mascot.on .cn-body{transform-origin:60px 124px;animation:cnIdle 2.4s ease-in-out infinite}
+body.toon-motion .toon-mascot.on .cn-ant{transform-origin:60px 18px;animation:cnAnt 1.6s ease-in-out infinite alternate}
+body.toon-motion .toon-mascot.on .cn-body.jump{animation:cnJump .95s cubic-bezier(.3,.7,.4,1)}
+body.toon-motion .toon-mascot.on .cn-body.jump .cn-arm.r{transform:rotate(-40deg)}
+body.toon-motion .toon-mascot.on .cn-body.jump .cn-arm.l{transform:rotate(40deg)}
+body.toon-motion .toon-mascot.on .cn-sh{animation:cnShadow 2.4s ease-in-out infinite}
+body.toon-motion .toon-mascot.on .cn-body.jump~.cn-sh{animation:none}
+body.toon-motion .toon-mascot.on:hover .cn-arm.r,body.toon-motion .cn.wave .cn-arm.r{animation:cnWave .55s ease-in-out infinite}
+.cn-arm.r{transform-origin:101px 80px}.cn-arm.l{transform-origin:19px 80px}
+@keyframes cnIdle{0%,100%{transform:translateY(0) scale(1.02,.98)}50%{transform:translateY(-6px) scale(.98,1.03)}}
+@keyframes cnShadow{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.86);opacity:.7}}
+@keyframes cnAnt{from{transform:rotate(-12deg)}to{transform:rotate(14deg)}}
+@keyframes cnWave{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(-48deg)}}
+@keyframes cnJump{0%{transform:translateY(0) scale(1.14,.84)}22%{transform:translateY(-4px) scale(.9,1.14)}50%{transform:translateY(-52px) scale(.94,1.1)}78%{transform:translateY(0) scale(1.16,.82)}90%{transform:translateY(-4px) scale(.97,1.05)}100%{transform:none}}
+
+/* speech bubble */
+.toon-bubble{position:absolute;left:46px;bottom:calc(100% - 6px);width:max-content;max-width:min(230px,62vw);padding:10px 14px;border-radius:18px 18px 18px 4px;
+  background:#fff;color:#2B1A08;border:3px solid #3B2208;box-shadow:0 5px 0 #3B2208;font:700 14px/1.3 var(--toon-font);pointer-events:none;transform-origin:0 100%}
+.toon-bubble.pop{animation:bubblePop .5s cubic-bezier(.3,1.7,.5,1)}
+@keyframes bubblePop{from{transform:scale(.2) rotate(-6deg);opacity:0}}
+
+/* fun corner button + panel */
+.toon-fab{position:fixed;right:14px;bottom:14px;transform:translateX(calc(100% + 14px));opacity:.0;z-index:56;width:52px;height:52px;border-radius:50%;border:3px solid #3B2208;cursor:pointer;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 28%,#FFF6CC,#F9CB5B 55%,#DC9528);box-shadow:0 5px 0 #3B2208,0 12px 18px -6px rgba(0,0,0,.6);transition:transform .35s cubic-bezier(.3,1.4,.5,1),opacity .25s}
+.toon-fab.show,.toon-fab:focus-visible{transform:none;opacity:1}
+.toon-fab.show:hover{transform:translateY(-2px) rotate(-8deg)}
+.toon-fab.show:active{transform:translateY(3px);box-shadow:0 2px 0 #3B2208}
+.toon-fab:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.toon-fab svg{width:28px;height:28px;display:block}
+body.toon-motion .toon-fab svg{animation:fabSpin 6s linear infinite}
+@keyframes fabSpin{to{transform:rotate(360deg)}}
+.toon-panel{position:fixed;right:14px;bottom:76px;z-index:57;width:min(300px,calc(100vw - 28px));padding:16px;border-radius:22px;color:#fff;
+  background:linear-gradient(165deg,rgba(48,66,112,.97),rgba(13,20,42,.98));border:3px solid #F4D492;box-shadow:0 7px 0 #6E501A,0 24px 50px -10px rgba(0,0,0,.8);
+  font-family:var(--toon-font);transform-origin:100% 100%;animation:bubblePop .45s cubic-bezier(.3,1.5,.5,1)}
+.toon-panel h3{font:800 1.25rem/1.1 var(--toon-font);color:var(--gold);margin:0 0 4px}
+.toon-panel p{font-size:.8rem;color:var(--mute);margin:0 0 10px}
+.toon-sw{display:flex;align-items:center;gap:12px;padding:7px 0;cursor:pointer;font-weight:700;font-size:.95rem}
+.toon-sw input{position:absolute;opacity:0;pointer-events:none}
+.toon-sw .sl{flex:none;width:44px;height:26px;border-radius:99px;background:#1B2748;border:2px solid #3B2208;position:relative;transition:background .2s}
+.toon-sw .sl::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid #3B2208;box-sizing:border-box;width:18px;height:18px;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.toon-sw input:checked+.sl{background:var(--toon1)}
+.toon-sw input:checked+.sl::after{transform:translateX(18px)}
+.toon-sw input:focus-visible+.sl{outline:3px solid #fff;outline-offset:2px}
+.toon-moods{display:flex;gap:8px;margin:10px 0 12px}
+.toon-moods button{flex:1;height:34px;border-radius:12px;border:3px solid #3B2208;cursor:pointer;color:#2B1A08;font:800 .72rem var(--toon-font);box-shadow:0 3px 0 #3B2208;transition:transform .12s}
+.toon-moods button:hover{transform:translateY(-2px)}
+.toon-moods button[aria-checked="true"]{outline:3px solid #fff;outline-offset:2px}
+.toon-moods [data-mood=candy]{background:linear-gradient(90deg,#FF5C8A,#FFD166)}
+.toon-moods [data-mood=ocean]{background:linear-gradient(90deg,#38BDF8,#34D399)}
+.toon-moods [data-mood=sunny]{background:linear-gradient(90deg,#FF9F1C,#FFD23F)}
+.toon-moods [data-mood=jungle]{background:linear-gradient(90deg,#7ED957,#4DD0E1)}
+.toon-reset{width:100%;padding:9px;border-radius:12px;border:2px dashed rgba(255,255,255,.35);background:none;color:#fff;font:700 .85rem var(--toon-font);cursor:pointer}
+.toon-reset:hover{background:rgba(255,255,255,.08)}
+
+/* scroll rocket */
+.toon-rocket{position:fixed;right:10px;top:96px;bottom:96px;width:26px;z-index:44;pointer-events:none}
+.toon-rocket::before{content:"";position:absolute;left:50%;top:0;bottom:22px;border-left:3px dotted rgba(255,255,255,.28);transform:translateX(-50%)}
+.toon-rocket .goal{position:absolute;left:1px;bottom:-4px;width:24px;height:24px}
+.toon-rocket .rk{position:absolute;left:0;top:calc((100% - 62px) * var(--p,0));width:26px;height:40px;transition:top .12s linear}
+.toon-rocket .rk svg{display:block;width:100%;height:100%;overflow:visible;transform:rotate(180deg);filter:drop-shadow(0 3px 0 rgba(0,0,0,.3))}
+.toon-rocket .fl{transform-box:fill-box;transform-origin:50% 0}
+body.toon-motion .toon-rocket .fl{animation:flame .18s ease-in-out infinite alternate}
+@keyframes flame{from{transform:scaleY(.7)}to{transform:scaleY(1.25)}}
+@media (max-width:899px){.toon-rocket{display:none}}
+
+/* ── cartoon motion for the page itself ── */
+body.toon-font .sec>h2{font-family:var(--toon-font);letter-spacing:0;text-shadow:0 3px 0 rgba(0,0,0,.4)}
+body.toon-font .profile h2{font-family:var(--toon-font);letter-spacing:0}
+body.toon-motion .sec.in .ent{animation:toonRise .85s cubic-bezier(.2,1.3,.4,1) backwards;animation-delay:calc(var(--i,0)*60ms)}
+@keyframes toonRise{from{opacity:0;transform:translateY(38px) scale(.9) rotate(-1.4deg)}55%{opacity:1;transform:translateY(-7px) scale(1.015) rotate(.4deg)}}
+body.toon-motion .g:hover,body.toon-motion .rolebtn:hover{animation:toonJelly .55s}
+@keyframes toonJelly{0%,100%{scale:1}30%{scale:1.1 .92}55%{scale:.95 1.07}78%{scale:1.03 .99}}
+.toon-boing{animation:toonBoing .8s cubic-bezier(.3,1.6,.5,1)!important}
+@keyframes toonBoing{0%{scale:1}18%{scale:1.22 .8}42%{scale:.88 1.16}66%{scale:1.07 .96}100%{scale:1}}
+body.toon-motion .ent-fig b{display:inline-block}
+body.toon-motion .ent:hover .ent-fig b{animation:toonJelly .6s}
+body.toon-motion .medal svg{animation:toonBob 2.8s ease-in-out infinite}
+@keyframes toonBob{0%,100%{translate:0 0;rotate:-3deg}50%{translate:0 -4px;rotate:3deg}}
+body.toon-motion .sec.in .sec-ico{animation:pop .7s cubic-bezier(.3,1.6,.5,1) backwards,toonBob 3.4s 1s ease-in-out infinite}
+
+@media (max-width:639px){
+  .toon-mascot{width:70px;left:8px;bottom:8px}
+  .toon-bubble{left:34px;font-size:13px}
+  .toon-fab{width:46px;height:46px;right:10px;bottom:10px}
+  .toon-panel{bottom:66px;right:10px}
+}
+@media print{.toon-fx,.toon-mascot,.toon-fab,.toon-panel,.toon-rocket{display:none!important}}
+
 </style>
 </head>
 <body class="">
@@ -1821,6 +1948,190 @@ render();
   window.addEventListener('keydown',skip,{once:true});
 })();
 
+</script>
+<script>
+(function(){
+'use strict';
+/* ═════════ TOON LAYER — edit CONFIG to change the mascot's words, speed and look ═════════ */
+var CONFIG={
+  hello:"Hi, I'm Coiny! Pick your grade to see your benefits.",
+  tips:[
+    "Tip: type in the search box to find any allowance fast.",
+    "Tap a section on the left to jump straight to it.",
+    "Tick 'Hide items that don't apply' to tidy the list.",
+    "Psst... I keep scrolling when you're quiet for 3 seconds!",
+    "Poke me! I love it."
+  ],
+  pokes:["Hehe, that tickles!","Boing!","Cha-ching!","You're doing great!","Wheee!","Again, again!"],
+  cheers:["Yay!","Woohoo!","Great pick!","Cha-ching!","Hooray!"],
+  endMsg:"You made it to the end! High five!",
+  searchMsg:"Hmm, let me look for that...",
+  hideOnMsg:"Tidying up! Hiding what doesn't apply.",
+  hideOffMsg:"Showing everything again!",
+  tipEveryMs:28000,
+  storageKey:'ibofToon.v1'
+};
+
+var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+var DEF={mascot:true,confetti:!reduce,motion:!reduce,font:true,mood:'candy'};
+var S={};Object.keys(DEF).forEach(function(k){S[k]=DEF[k];});
+try{var sv=JSON.parse(localStorage.getItem(CONFIG.storageKey)||'null');
+  if(sv)Object.keys(DEF).forEach(function(k){if(k in sv)S[k]=sv[k];});}catch(e){}
+function save(){try{localStorage.setItem(CONFIG.storageKey,JSON.stringify(S));}catch(e){}}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+var B=document.body;
+
+/* ───────── confetti / sparkle engine ───────── */
+var cv=document.createElement('canvas');cv.className='toon-fx';cv.setAttribute('aria-hidden','true');B.appendChild(cv);
+var cx=cv.getContext('2d'),P=[],raf=0,W=0,H=0;
+function size(){var d=Math.min(window.devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0);}
+size();addEventListener('resize',size);
+function colors(){var cs=getComputedStyle(B);var c=[1,2,3,4].map(function(i){return cs.getPropertyValue('--toon'+i).trim()||'#fff';});c.push('#FFFFFF');return c;}
+function add(p){if(P.length>420)P.shift();P.push(p);if(!raf)raf=requestAnimationFrame(tick);}
+function burst(x,y,n,sp){
+  if(!S.confetti)return;var col=colors();
+  for(var i=0;i<n;i++){var a=Math.random()*6.283,v=(sp||9)*(.4+Math.random()*.8),r=Math.random();
+    add({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-5,g:.28,d:.985,rot:Math.random()*6.28,vr:(Math.random()-.5)*.4,s:6+Math.random()*7,
+      c:col[i%col.length],t:r<.16?'coin':r<.38?'star':r<.68?'rect':'dot',life:0,max:90+Math.random()*60});}
+}
+function rain(n){
+  if(!S.confetti)return;var col=colors();
+  for(var i=0;i<n;i++){add({x:Math.random()*W,y:-20-Math.random()*H*.35,vx:(Math.random()-.5)*1.6,vy:2+Math.random()*3,g:.05,d:1,rot:Math.random()*6.28,
+    vr:(Math.random()-.5)*.2,s:9+Math.random()*6,c:col[i%col.length],t:Math.random()<.6?'coin':'star',life:0,max:260});}
+}
+function star(s,pts,inner){cx.beginPath();for(var i=0;i<pts*2;i++){var r=i%2?s*inner:s,a=Math.PI*i/pts-Math.PI/2;cx[i?'lineTo':'moveTo'](Math.cos(a)*r,Math.sin(a)*r);}cx.closePath();}
+function draw(p,a){
+  cx.save();cx.globalAlpha=a;cx.translate(p.x,p.y);cx.rotate(p.rot);cx.fillStyle=p.c;
+  if(p.t==='rect'){cx.scale(Math.cos(p.life*.18)||.05,1);cx.fillRect(-p.s/2,-p.s/3,p.s,p.s*.66);}
+  else if(p.t==='dot'){cx.beginPath();cx.arc(0,0,p.s/2,0,6.283);cx.fill();}
+  else if(p.t==='star'){star(p.s*.8,5,.45);cx.fill();cx.lineWidth=1.5;cx.strokeStyle='rgba(59,34,8,.7)';cx.stroke();}
+  else if(p.t==='spark'){star(p.s,4,.28);cx.fill();}
+  else if(p.t==='coin'){cx.scale(Math.cos(p.life*.16)||.05,1);cx.fillStyle='#F6C453';cx.beginPath();cx.arc(0,0,p.s*.8,0,6.283);cx.fill();
+    cx.lineWidth=1.6;cx.strokeStyle='#3B2208';cx.stroke();cx.beginPath();cx.arc(0,0,p.s*.5,0,6.283);cx.strokeStyle='#B9731B';cx.stroke();}
+  cx.restore();
+}
+function tick(){
+  cx.clearRect(0,0,W,H);
+  for(var i=P.length-1;i>=0;i--){var p=P[i];p.life++;p.vx*=p.d;p.vy=p.vy*p.d+p.g;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;
+    var a=1-Math.max(0,(p.life-p.max*.65)/(p.max*.35));
+    if(p.life>p.max||p.y>H+30||a<=0){P.splice(i,1);continue;}draw(p,a);}
+  raf=P.length?requestAnimationFrame(tick):0;if(!raf)cx.clearRect(0,0,W,H);
+}
+var K='stroke="#3B2208" stroke-width="2.5" stroke-linejoin="round"';
+/* ───────── Coiny the mascot ───────── */
+var m=document.createElement('div');m.className='toon-mascot';m.id='toonMascot';m.tabIndex=0;m.setAttribute('role','button');
+m.setAttribute('aria-label','Coiny the coin mascot. Press to poke.');
+m.innerHTML='<div class="toon-bubble" id="toonBubble" role="status" aria-live="polite" hidden></div>'+
+'<svg class="cn" viewBox="0 -4 120 146" aria-hidden="true"><defs><radialGradient id="cnG" cx="34%" cy="26%" r="85%"><stop offset="0" stop-color="#FFF6CC"/><stop offset=".5" stop-color="#F9CB5B"/><stop offset="1" stop-color="#DC9528"/></radialGradient></defs>'+
+'<ellipse class="cn-sh" cx="60" cy="137" rx="30" ry="5"/>'+
+'<g class="cn-body">'+
+ '<g class="cn-leg"><rect x="40" y="100" width="11" height="22" rx="5.5"/><ellipse cx="43" cy="126" rx="11" ry="6.5"/></g>'+
+ '<g class="cn-leg"><rect x="69" y="100" width="11" height="22" rx="5.5"/><ellipse cx="77" cy="126" rx="11" ry="6.5"/></g>'+
+ '<g class="cn-arm l"><path d="M19 80Q6 78 3 64"/><circle cx="3" cy="62" r="7.5"/></g>'+
+ '<g class="cn-arm r"><path d="M101 80Q114 78 117 64"/><circle cx="117" cy="62" r="7.5"/></g>'+
+ '<g class="cn-ant"><path d="M60 18Q57 8 64 4"/><circle cx="64" cy="3" r="5.5"/></g>'+
+ '<circle class="cn-coin" cx="60" cy="62" r="45" fill="url(#cnG)"/><circle class="cn-inner" cx="60" cy="62" r="37"/>'+
+ '<text class="cn-rs" x="60" y="40">\u20B9</text>'+
+ '<g class="eye"><ellipse class="cn-eyew" cx="45" cy="62" rx="9.5" ry="12"/><g class="pup cn-pup"><circle cx="45" cy="63" r="5.6"/><circle cx="43" cy="60" r="1.9"/></g></g>'+
+ '<g class="eye"><ellipse class="cn-eyew" cx="75" cy="62" rx="9.5" ry="12"/><g class="pup cn-pup"><circle cx="75" cy="63" r="5.6"/><circle cx="73" cy="60" r="1.9"/></g></g>'+
+ '<circle class="cn-cheek" cx="32" cy="80" r="6"/><circle class="cn-cheek" cx="88" cy="80" r="6"/>'+
+ '<path class="cn-mouth" d="M48 82Q60 93 72 82"/>'+
+'</g></svg>';
+B.appendChild(m);
+var bub=m.querySelector('#toonBubble'),svg=m.querySelector('.cn'),body=m.querySelector('.cn-body'),mouth=m.querySelector('.cn-mouth'),pups=m.querySelectorAll('.pup');
+var bubT=0,jT=0,lastSay=0;
+function say(msg,ms){if(!S.mascot)return;bub.textContent=msg;bub.hidden=false;bub.classList.remove('pop');void bub.offsetWidth;bub.classList.add('pop');
+  clearTimeout(bubT);bubT=setTimeout(function(){bub.hidden=true;},ms||5200);lastSay=Date.now();}
+function face(open){mouth.setAttribute('d',open?'M46 80Q60 102 74 80Z':'M48 82Q60 93 72 82');mouth.classList.toggle('open',!!open);}
+function jump(){body.classList.remove('jump');void body.getBoundingClientRect();body.classList.add('jump');face(true);
+  clearTimeout(jT);jT=setTimeout(function(){body.classList.remove('jump');face(false);},960);}
+function wave(){svg.classList.add('wave');setTimeout(function(){svg.classList.remove('wave');},2400);}
+var trk=0;
+addEventListener('pointermove',function(e){if(!S.mascot||trk)return;var X=e.clientX,Y=e.clientY;
+  trk=requestAnimationFrame(function(){trk=0;var r=m.getBoundingClientRect(),dx=X-(r.left+r.width/2),dy=Y-(r.top+r.height*.45),dd=Math.hypot(dx,dy)||1,k=Math.min(1,dd/160);
+    for(var i=0;i<pups.length;i++)pups[i].style.transform='translate('+(dx/dd*3.4*k).toFixed(2)+'px,'+(dy/dd*3.4*k).toFixed(2)+'px)';});},{passive:true});
+setInterval(function(){svg.classList.add('blink');setTimeout(function(){svg.classList.remove('blink');},140);},3200);
+function poke(){var r=m.getBoundingClientRect();jump();burst(r.left+r.width/2,r.top+r.height*.4,36,8);say(pick(CONFIG.pokes),3200);}
+m.addEventListener('click',poke);
+m.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();poke();}});
+var tipI=0;
+setInterval(function(){if(!S.mascot||document.hidden||!m.classList.contains('on'))return;
+  if(Date.now()-lastSay>CONFIG.tipEveryMs){say(CONFIG.tips[tipI++%CONFIG.tips.length],5600);wave();}},6000);
+
+/* ───────── scroll rocket ───────── */
+var rk=document.createElement('div');rk.className='toon-rocket';rk.setAttribute('aria-hidden','true');
+rk.innerHTML='<svg class="goal" viewBox="0 0 40 40"><path d="M20 3l5 11.5 12.5 1.2-9.4 8.3 2.8 12.3L20 29.6 9.1 36.3l2.8-12.3L2.5 15.7 15 14.5z" fill="#FFD166" '+K+'/></svg>'+
+'<div class="rk"><svg viewBox="0 0 26 40"><path class="fl" d="M9 29Q13 41 17 29Z" fill="#FF9F1C" stroke="#3B2208" stroke-width="2"/><path d="M13 2C19 8 20 18 19 28H7C6 18 7 8 13 2Z" fill="#fff" '+K+'/><circle cx="13" cy="15" r="3.6" fill="var(--toon3)" stroke="#3B2208" stroke-width="2"/><path d="M7 22L1 31l6-3z" fill="var(--toon1)" '+K+'/><path d="M19 22l6 9-6-3z" fill="var(--toon1)" '+K+'/></svg></div>';
+B.appendChild(rk);
+var rRaf=0,wasEnd=false,lastEnd=0;
+function onScroll(){if(rRaf)return;rRaf=requestAnimationFrame(function(){rRaf=0;
+  var mx=document.documentElement.scrollHeight-innerHeight,p=mx>0?Math.min(1,Math.max(0,scrollY/mx)):0;rk.style.setProperty('--p',p.toFixed(4));
+  var lay=document.getElementById('layout'),shown=lay&&!lay.hidden;
+  if(shown&&mx>600&&scrollY>=mx-4){if(!wasEnd&&Date.now()-lastEnd>15000){wasEnd=true;lastEnd=Date.now();
+      var cxp=[.25,.5,.75];cxp.forEach(function(f,i){setTimeout(function(){burst(W*f,H*.55,40,10);},i*180);});rain(16);jump();say(CONFIG.endMsg,5200);}}
+  else if(scrollY<mx-300)wasEnd=false;});}
+addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',onScroll);onScroll();
+
+/* ───────── react to what the visitor does ───────── */
+document.addEventListener('click',function(e){
+  var el=e.target.closest&&e.target.closest('.g,.rolebtn');if(!el)return;
+  if(S.motion){el.classList.remove('toon-boing');void el.offsetWidth;el.classList.add('toon-boing');setTimeout(function(){el.classList.remove('toon-boing');},850);}
+  var r=el.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,56);rain(14);jump();
+  setTimeout(function(){
+    var l='',msg=pick(CONFIG.cheers);
+    if(el.classList.contains('g')){var sc=el.dataset.scale||'';l=/^[IVX]+$/.test(sc)?'Scale '+sc:sc;msg+=l?' '+l+' picked. Now choose your posting.':'';}
+    else{var h=document.querySelector('#profile h2');l=h?h.textContent.trim():'';msg+=l?' Showing '+l+'.':'';}
+    say(msg,4800);},el.classList.contains('g')?250:900);
+});
+var q=document.getElementById('q'),qT=0;
+if(q)q.addEventListener('input',function(){if(Date.now()-lastSay>6000&&q.value.trim()){clearTimeout(qT);qT=setTimeout(function(){say(CONFIG.searchMsg,2600);},400);}});
+var hn=document.getElementById('hideNA');
+if(hn)hn.addEventListener('change',function(){jump();say(hn.checked?CONFIG.hideOnMsg:CONFIG.hideOffMsg,3200);});
+
+/* ───────── Fun Corner (settings) ───────── */
+var fab=document.createElement('button');fab.type='button';fab.className='toon-fab';fab.id='toonFab';fab.title='Fun settings';fab.setAttribute('aria-label','Fun settings');
+fab.setAttribute('aria-haspopup','dialog');fab.setAttribute('aria-expanded','false');fab.setAttribute('aria-controls','toonPanel');
+fab.innerHTML='<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3l5 11.5 12.5 1.2-9.4 8.3 2.8 12.3L20 29.6 9.1 36.3l2.8-12.3L2.5 15.7 15 14.5z" fill="#FF5C8A" stroke="#3B2208" stroke-width="3" stroke-linejoin="round"/></svg>';
+var pn=document.createElement('div');pn.className='toon-panel';pn.id='toonPanel';pn.setAttribute('role','dialog');pn.setAttribute('aria-label','Fun settings');pn.hidden=true;
+var ROWS=[['mascot','Coiny the mascot'],['confetti','Confetti & coin rain'],['motion','Bouncy cartoon motion'],['font','Cartoon headings']];
+pn.innerHTML='<h3>Fun Corner</h3><p>Switch the playful bits on or off.</p>'+
+ ROWS.map(function(r){return '<label class="toon-sw"><input type="checkbox" data-k="'+r[0]+'"><span class="sl"></span><span>'+r[1]+'</span></label>';}).join('')+
+ '<div class="toon-moods" role="radiogroup" aria-label="Colour mood">'+['candy','ocean','sunny','jungle'].map(function(k){return '<button type="button" role="radio" data-mood="'+k+'">'+k[0].toUpperCase()+k.slice(1)+'</button>';}).join('')+'</div>'+
+ '<button type="button" class="toon-reset">Reset to default</button>';
+B.appendChild(fab);B.appendChild(pn);
+function apply(){
+  var c=B.classList;c.toggle('toon-motion',!!S.motion);c.toggle('toon-font',!!S.font);
+  ['candy','ocean','sunny','jungle'].forEach(function(k){c.toggle('mood-'+k,S.mood===k);});
+  m.hidden=!S.mascot;
+  pn.querySelectorAll('input[data-k]').forEach(function(i){i.checked=!!S[i.dataset.k];});
+  pn.querySelectorAll('[data-mood]').forEach(function(b){b.setAttribute('aria-checked',String(S.mood===b.dataset.mood));});
+}
+pn.addEventListener('change',function(e){var k=e.target.dataset&&e.target.dataset.k;if(!k)return;S[k]=e.target.checked;save();apply();
+  if(k==='mascot'&&S.mascot)say('I\u2019m back!',2600);if(k==='confetti'&&S.confetti)burst(innerWidth-60,innerHeight-90,40,9);});
+pn.addEventListener('click',function(e){
+  var b=e.target.closest('[data-mood]');if(b){S.mood=b.dataset.mood;save();apply();var r=b.getBoundingClientRect();burst(r.left+r.width/2,r.top,30,7);return;}
+  if(e.target.closest('.toon-reset')){Object.keys(DEF).forEach(function(k){S[k]=DEF[k];});save();apply();say('All reset!',2400);}
+});
+var fabT=0;
+function showFab(){fab.classList.add('show');clearTimeout(fabT);fabT=setTimeout(function(){if(pn.hidden&&!fab.matches(':hover,:focus-visible'))fab.classList.remove('show');},3000);}
+function panel(open){pn.hidden=!open;fab.setAttribute('aria-expanded',String(open));if(open){fab.classList.add('show');clearTimeout(fabT);}else showFab();}
+// reveal when the pointer or a tap goes near the bottom-right corner, or when the button is focused
+addEventListener('pointermove',function(e){if(e.clientX>innerWidth-130&&e.clientY>innerHeight-130)showFab();},{passive:true});
+addEventListener('pointerdown',function(e){if(e.clientX>innerWidth-90&&e.clientY>innerHeight-90)showFab();},{passive:true});
+fab.addEventListener('focus',showFab);fab.addEventListener('mouseleave',showFab);
+fab.addEventListener('click',function(){panel(pn.hidden);});
+document.addEventListener('click',function(e){if(!pn.hidden&&!pn.contains(e.target)&&!fab.contains(e.target))panel(false);});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!pn.hidden){panel(false);fab.focus();}});
+apply();
+
+/* ───────── show Coiny once the opening splash is gone ───────── */
+function ready(fn){
+  if(!document.getElementById('site-splash'))return fn();
+  var mo=new MutationObserver(function(){if(!document.getElementById('site-splash')){mo.disconnect();fn();}});
+  mo.observe(B,{childList:true,subtree:true});
+}
+ready(function(){setTimeout(function(){m.classList.add('on');wave();setTimeout(function(){say(CONFIG.hello,6000);},700);},500);});
+})();
 </script>
 </body>
 </html>
